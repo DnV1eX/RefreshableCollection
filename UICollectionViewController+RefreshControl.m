@@ -41,7 +41,11 @@
     if (offset.y < 0 && translation.y > 0) {
         UIRefreshControl *refreshControl = self.refreshControl;
         [self.collectionView sendSubviewToBack:refreshControl];
-        offset.y = -translation.y + MAX(0, translation.y - refreshControl.frame.size.height) / 2 + MAX(0, translation.y - refreshControl.frame.size.height - 146) / 4; // 146 is well-known magic number in Russia :)
+        CGFloat h = refreshControl.frame.size.height; // Offset without resistance.
+        CGFloat r = 1.6; // Initial resistance.
+        CGFloat l = 900; // Maximum offset.
+        CGFloat x = translation.y + h * r / (1 - h / l) - h;
+        offset.y = -(translation.y < h ? translation.y : x / (r + x / l));
         offset.y -= self.topLayoutGuide.length;
         self.collectionView.contentOffset = offset;
     }
