@@ -6,18 +6,18 @@
 //
 
 #import "UICollectionViewController+RefreshControl.h"
+#import <objc/objc-runtime.h>
+
+
+static const char RefreshControlKey;
 
 
 @implementation UICollectionViewController (RefreshControl)
 
 - (UIRefreshControl *)refreshControl
 {
-    for (UIView *view in self.collectionView.subviews) {
-        if ([view isKindOfClass:[UIRefreshControl class]]) {
-            return (UIRefreshControl *)view;
-        }
-    }
-    return nil;
+    UIRefreshControl *refreshControl = objc_getAssociatedObject(self, &RefreshControlKey);
+    return refreshControl;
 }
 
 
@@ -25,6 +25,7 @@
 {
     [self.refreshControl removeFromSuperview];
     [self.collectionView addSubview:refreshControl];
+    objc_setAssociatedObject(self, &RefreshControlKey, refreshControl, OBJC_ASSOCIATION_ASSIGN);
     [self.collectionView.panGestureRecognizer addTarget:self action:@selector(handlePan:)];
 }
 
